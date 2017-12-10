@@ -17,6 +17,8 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import StandardScaler
 import argparse
 import matplotlib.pyplot as plt
+import warnings
+import os
 
 ####################################################################################
 #  changing parameters below is not recommended unless you know what you are doing #
@@ -31,6 +33,8 @@ NUM_SEEDS = 50
 # for RF
 MAX_TREES = 200
 
+# for LG
+MAX_C = 100
 
 class ModelSelector():
     def __init__(self, X, y, clf):
@@ -98,7 +102,7 @@ def plot_scores(scores, indexes, label, xlabel, ylabel, title, filename):
     # plt.clf()
 
 
-def test_MLP(X, y):
+def test_mlp(X, y):
     # MLP needs normalized features
     scaler = StandardScaler()
     scaler.fit(X)
@@ -110,7 +114,7 @@ def test_MLP(X, y):
     for i in range(MAX_NUS / 10):
         sub_scores = []
         num_neurons = i * 10 + 10
-        print "Number of trees: ", num_neurons
+        print "Number of neurons: ", num_neurons
         for j in range(NUM_SEEDS):
             model.clf = MLPClassifier(hidden_layer_sizes=(num_neurons, num_neurons), random_state=j)
             sub_scores.append(model.model_score(j, "SEED"))
@@ -120,6 +124,34 @@ def test_MLP(X, y):
     plot_scores(scores, indexes, "Accuracy", "Number of neurons",
                 "Accuracy", "Accuracies of different number of neurons of MLP", "MLP.png")
 
+
+def test_rg(X, y, lift):
+    # lifting: we are only lifting mfcc features according to test result
+    poly = PolynomialFeatures(lift)
+    mfcc = poly.fit_transform(X[:, :26])
+    X = np.append(mfcc, X[:, 26:], axis=1)
+
+    # sag needs normalized features
+    scaler = StandardScaler()
+    scaler.fit(X)
+    X = scaler.transform(X)
+
+    print "Caclculation scores..."
+    model = ModelSelector(X, y, LogisticRegression())
+    scores = []
+    indexes = []
+    for i in range(MAX_C / 10):
+        sub_scores = []
+        C = i * 10 + 10
+        print "C is : ", C
+        for j in range(NUM_SEEDS):
+            model.clf = LogisticRegression(solver="sag", n_jobs=-1,C=C, random_state=j)
+            sub_scores.append(model.model_score(j, "SEED"))
+        scores.append(sub_scores)
+        indexes.append(C)
+    scores = list(np.max(np.array(scores), axis=1))
+    plot_scores(scores, indexes, "Accuracy", "C",
+                "Accuracy", "Accuracies of different Cs of LG", "LG.png")
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='train a model do a validation analysis of the model')
@@ -134,7 +166,7 @@ if __name__ == '__main__':
     7: mfcc + fft + log-mel
     """)
     parser.add_argument('--N', default=-1, type=int, help="number of cores")
-    parser.add_argument('--classifier', default=1, type=int, help=
+    parser.add_argument('--classifier', default=2, type=int, help=
     """
     1: Random Forest
     2: Logistic Regression (very slow)
@@ -151,6 +183,10 @@ if __name__ == '__main__':
     if args.classifier == 1:
         test_rf(X, y)
     elif args.classifier == 2:
-        pass
+        if args.features in [2, 3, 6]:
+            warnings.warn("Lifting will not work because mfcc features are not used")
+            test_rg(X, y, 1)
+        else:
+            test_rg(X, y, args.lift)
     elif args.classifier == 3:
-        pass
+        test_mlp(X, y)
