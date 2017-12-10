@@ -1,10 +1,10 @@
-import os
 import glob
+import os
+import time
+
 import numpy as np
-import scipy
 import scipy.io.wavfile
 from scikits.talkbox.features import mfcc
-import time
 
 GENRE_DIR = "/home/cheng/Desktop/genres"
 GENRE_LIST = ["blues", "classical", "country", "disco", "hiphop", "jazz", "metal", "pop", "reggae", "rock"]
