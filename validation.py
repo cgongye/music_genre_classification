@@ -10,7 +10,7 @@ from sklearn.model_selection import KFold
 from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import StandardScaler
 
-from feature_extraction import GENRE_LIST
+from feature_extraction import GENRE_LIST, read_features
 
 
 class category_result:
@@ -92,6 +92,7 @@ class fold_result:
         plt.savefig("./graph/validation/cm.png")
         plt.show()
 
+
 def train_model(X, y, out):
     """
     This function train the model and save the pickled result
@@ -151,16 +152,13 @@ def validate_model(X, y):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='train a model using MLP and do a validation analysis of the model')
-    parser.add_argument('--X', default="X.npy", help="an ndarray of the data points")
-    parser.add_argument('--y', default="y.npy", help='an ndarray of the labels')
     parser.add_argument('--validate', default=1, type=int, help="validate the model or not")
     parser.add_argument('--out', default="model.out", help='trained model')
 
     args = parser.parse_args()
 
     # load processed data
-    X = np.load(args.X)
-    y = np.load(args.y)
+    X, y = read_features()
 
     # MLP needs normalized features
     scaler = StandardScaler()
