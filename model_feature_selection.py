@@ -1,24 +1,16 @@
-import textwrap
-
-from sklearn.model_selection import cross_val_score
-from sklearn.linear_model.logistic import LogisticRegression
-from sklearn.preprocessing import PolynomialFeatures
-import numpy as np
-from sklearn.model_selection import train_test_split
-from sklearn import datasets
-from sklearn import svm
-from feature_extraction import read_features
-from feature_extraction import GENRE_LIST
-from joblib import Parallel, delayed
-import multiprocessing
-from sklearn.neural_network import MLPClassifier
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.neural_network import MLPClassifier
-from sklearn.preprocessing import StandardScaler
 import argparse
-import matplotlib.pyplot as plt
 import warnings
-import os
+
+import matplotlib.pyplot as plt
+import numpy as np
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model.logistic import LogisticRegression
+from sklearn.model_selection import cross_val_score
+from sklearn.neural_network import MLPClassifier
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.preprocessing import StandardScaler
+
+from feature_extraction import read_features
 
 ####################################################################################
 #  changing parameters below is not recommended unless you know what you are doing #
@@ -35,6 +27,9 @@ MAX_TREES = 200
 
 # for LG
 MAX_C = 100
+
+
+####################################################################################
 
 class ModelSelector():
     def __init__(self, X, y, clf):
@@ -145,13 +140,14 @@ def test_rg(X, y, lift):
         C = i * 10 + 10
         print "C is : ", C
         for j in range(NUM_SEEDS):
-            model.clf = LogisticRegression(solver="sag", n_jobs=-1,C=C, random_state=j)
+            model.clf = LogisticRegression(solver="sag", n_jobs=-1, C=C, random_state=j)
             sub_scores.append(model.model_score(j, "SEED"))
         scores.append(sub_scores)
         indexes.append(C)
     scores = list(np.max(np.array(scores), axis=1))
     plot_scores(scores, indexes, "Accuracy", "C",
                 "Accuracy", "Accuracies of different Cs of LG", "LG.png")
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='train a model do a validation analysis of the model')

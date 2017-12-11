@@ -50,7 +50,9 @@ def generate_features(f):
     features_result = np.append(features_mean, features_std)
 
     # generate mean of the log energy on mel dimension  along the columns
-    log_result = np.mean(logs, axis=0)
+    log_mean = np.mean(logs, axis=0)
+    log_std = np.std(logs, axis=0)
+    log_result = np.append(log_mean, log_std)
 
     # trim the beginning and the end part of the wav file
     mfccs, logs, ffts = mfcc(X, nfft=8)
@@ -59,12 +61,12 @@ def generate_features(f):
     end = int(num_features * 8 / 9)
 
     # generate mean and std of the fft along the columns
-    specs_mean = np.mean(ffts[start:end], axis=0)
-    specs_std = np.std(ffts[start:end], axis=0)
-    specs_result = np.append(specs_mean, specs_std)
+    fft_mean = np.mean(ffts[start:end], axis=0)
+    fft_std = np.std(ffts[start:end], axis=0)
+    fft_result = np.append(fft_mean, fft_std)
 
     # write the result to a file
-    result = np.append(features_result, specs_result)
+    result = np.append(features_result, fft_result)
     write_ceps(np.append(result, log_result), f)
 
 
