@@ -77,7 +77,7 @@ def test_rf(X, y):
         num_trees = i * 10 + 10
         print "Number of trees: ", num_trees
         for j in range(NUM_SEEDS):
-            model.clf = RandomForestClassifier(n_estimators=num_trees, random_state=j)
+            model.clf = RandomForestClassifier(n_estimators=num_trees, random_state=j,n_jobs=-1)
             sub_scores.append(model.model_score(j, "SEED"))
         scores.append(sub_scores)
         indexes.append(num_trees)
@@ -132,21 +132,8 @@ def test_rg(X, y, lift):
     X = scaler.transform(X)
 
     print "Caclculation scores..."
-    model = ModelSelector(X, y, LogisticRegression())
-    scores = []
-    indexes = []
-    for i in range(MAX_C / 10):
-        sub_scores = []
-        C = i * 10 + 10
-        print "C is : ", C
-        for j in range(NUM_SEEDS):
-            model.clf = LogisticRegression(solver="sag", n_jobs=-1, C=C, random_state=j)
-            sub_scores.append(model.model_score(j, "SEED"))
-        scores.append(sub_scores)
-        indexes.append(C)
-    scores = list(np.max(np.array(scores), axis=1))
-    plot_scores(scores, indexes, "Accuracy", "C",
-                "Accuracy", "Accuracies of different Cs of LG", "LG.png")
+    model = ModelSelector(X, y, LogisticRegression(solver="sag", n_jobs=-1))
+    model.model_score(1,'C')
 
 
 if __name__ == '__main__':
