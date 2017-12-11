@@ -73,7 +73,7 @@ class fold_result:
         # Normalize conffusion matrix
         self.confussion_m = self.confussion_m.astype('float') / self.confussion_m.sum(axis=1)[:, np.newaxis]
         plt.imshow(self.confussion_m, interpolation='nearest', cmap=plt.cm.Blues)
-        plt.title("Conffusion matrix")
+        plt.title("Confusion matrix")
         plt.colorbar()
         tick_marks = np.arange(len(GENRE_LIST))
         plt.xticks(tick_marks, GENRE_LIST, rotation=45)
