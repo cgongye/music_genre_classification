@@ -10,7 +10,7 @@ GENRE_DIR = "/home/cheng/Desktop/genres"
 GENRE_LIST = ["blues", "classical", "country", "disco", "hiphop", "jazz", "metal", "pop", "reggae", "rock"]
 
 
-def write_ceps(features, f):
+def write_features(features, f):
     """
     This function write the features of wav file f as f.featrues.npy
 
@@ -67,7 +67,7 @@ def generate_features(f):
 
     # write the result to a file
     result = np.append(features_result, fft_result)
-    write_ceps(np.append(result, log_result), f)
+    write_features(np.append(result, log_result), f)
 
 
 def read_features():
@@ -99,7 +99,7 @@ if __name__ == "__main__":
 
     start = time.time()
 
-    print "Starting ceps generation..."
+    print "Starting features generation..."
     for subdir, dirs, files in os.walk(GENRE_DIR):
         for file in files:
             path = subdir + '/' + file
